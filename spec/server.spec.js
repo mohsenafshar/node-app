@@ -20,4 +20,11 @@ describe("getMessages", () => {
             done()
         })
     })
+
+    it("should return a list, with size of gt zero!", (done) => {
+        request.get("http://localhost:3000/messages/Mohsen", (err, res) => {
+            expect(JSON.parse(res.body)[0].name.toUpperCase()).toEqual("mohsen".toUpperCase())
+            done()
+        })
+    })
 })
