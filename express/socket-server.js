@@ -1,31 +1,44 @@
-var app = require('express')()
+var express = require('express')
+var app = express()
 var http = require('http').Server(app)
 var io = require('socket.io')(http)
 var bodyParser = require('body-parser')
+var mongoose = require('mongoose')
 
+app.use(express.static(__dirname))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 
-var messages = [
-    {
-        name: "Mohsen",
-        message: "Hi"
-    },
-    {
-        name: "Mohammad",
-        message: "Hello"
-    }
-];
 
-app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/socket.html');
-});
+var dbUrl = "mongodb+srv://user:user@cluster0-behpm.mongodb.net/test?retryWrites=true&w=majority"
+mongoose.connect(dbUrl, { useNewUrlParser: true }, (err) => {
+    console.log('mongo db connection', err);
+
+})
+
+var Message = mongoose.model("Message", {
+    name: String,
+    message: String
+})
+
+app.get("/messages", (req, res) => {
+    Message.find({}, (err, messages) => {
+        res.send(messages)
+    })
+})
 
 app.post("/messages", (req, res) => {
-    messages.push(req.body)
-    res.sendStatus(200)
-    console.log("ok");
-    io.emit('message', req.body)    
+
+    var msg = new Message(req.body);
+    msg.save((err) => {
+        if (err) {
+            res.sendStatus(500)
+        }
+
+        messages.push(req.body)
+        res.sendStatus(200)
+        io.emit('message', req.body)
+    })
 })
 
 io.on('connection', (socket) => {
