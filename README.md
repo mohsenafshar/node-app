@@ -3,5 +3,6 @@ A Simple Node.js Application
 
 ```
 Server : Express.js
-Databse : MongoDB , MLab
+Databse : MongoDB , mLab
+Test : Jasmine, Request
 ```
